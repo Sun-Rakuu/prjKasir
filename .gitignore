@@ -1,0 +1,330 @@
+# =========================
+
+# Flutter
+
+# =========================
+
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+.pub-cache/
+build/
+coverage/
+
+# Generated Dart files
+
+*.g.dart
+
+# =========================
+
+# Android
+
+# =========================
+
+android/.gradle/
+android/app/build/
+android/local.properties
+android/key.properties
+
+# APK / AAB
+
+*.apk
+*.aab
+
+# Android Studio
+
+*.iml
+.idea/
+
+# =========================
+
+# iOS
+
+# =========================
+
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/ephemeral/
+
+# =========================
+
+# Web
+
+# =========================
+
+web-build/
+
+# =========================
+
+# Windows
+
+# =========================
+
+windows/flutter/ephemeral/
+
+# =========================
+
+# Linux
+
+# =========================
+
+linux/flutter/ephemeral/
+
+# =========================
+
+# macOS
+
+# =========================
+
+macos/Flutter/ephemeral/
+
+# =========================
+
+# Firebase
+
+# =========================
+
+firebase-debug.log
+firebase-debug.*.log
+
+# FlutterFire CLI
+
+.flutterfire/
+
+# =========================
+
+# NodeJS
+
+# =========================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+
+# Environment
+
+# =========================
+
+.env
+.env.local
+.env.production
+
+# =========================
+
+# VS Code
+
+# =========================
+
+.vscode/
+
+# =========================
+
+# IntelliJ / Android Studio
+
+# =========================
+
+*.ipr
+*.iws
+
+# =========================
+
+# System Files
+
+# =========================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+
+# Logs
+
+# =========================
+
+*.log
+
+# =========================
+
+# Misc
+
+# =========================
+
+.history/
+.svn/
+.atom/
+.build/
+.buildlog/
+migrate_working_dir/
+# =========================
+
+# Flutter
+
+# =========================
+
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+.pub-cache/
+build/
+coverage/
+
+# Generated Dart files
+
+*.g.dart
+
+# =========================
+
+# Android
+
+# =========================
+
+android/.gradle/
+android/app/build/
+android/local.properties
+android/key.properties
+
+# APK / AAB
+
+*.apk
+*.aab
+
+# Android Studio
+
+*.iml
+.idea/
+
+# =========================
+
+# iOS
+
+# =========================
+
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/ephemeral/
+
+# =========================
+
+# Web
+
+# =========================
+
+web-build/
+
+# =========================
+
+# Windows
+
+# =========================
+
+windows/flutter/ephemeral/
+
+# =========================
+
+# Linux
+
+# =========================
+
+linux/flutter/ephemeral/
+
+# =========================
+
+# macOS
+
+# =========================
+
+macos/Flutter/ephemeral/
+
+# =========================
+
+# Firebase
+
+# =========================
+
+firebase-debug.log
+firebase-debug.*.log
+
+# FlutterFire CLI
+
+.flutterfire/
+
+# =========================
+
+# NodeJS
+
+# =========================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+
+# Environment
+
+# =========================
+
+.env
+.env.local
+.env.production
+
+# =========================
+
+# VS Code
+
+# =========================
+
+.vscode/
+
+# =========================
+
+# IntelliJ / Android Studio
+
+# =========================
+
+*.ipr
+*.iws
+
+# =========================
+
+# System Files
+
+# =========================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+
+# Logs
+
+# =========================
+
+*.log
+
+# =========================
+
+# Misc
+
+# =========================
+
+.history/
+.svn/
+.atom/
+.build/
+.buildlog/
+migrate_working_dir/

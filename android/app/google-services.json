@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "198828794237",
+    "firebase_url": "https://prjkasir-da860-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "prjkasir-da860",
+    "storage_bucket": "prjkasir-da860.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:198828794237:android:5786de775fefa53922ec14",
+        "android_client_info": {
+          "package_name": "com.intihose.app_pos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyG4PIqm53j6nRhl8wBLxGOZkx1T_5Xcs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
