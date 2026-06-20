@@ -1,9 +1,9 @@
+import 'dart:convert';
 import 'package:app_pos/database/firebase_database_helper.dart';
 import 'package:app_pos/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
-import 'package:firebase_storage/firebase_storage.dart';
 import '../../models/store_settings.dart';
 import '../../theme/app_theme.dart';
 
@@ -45,45 +45,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _pickLogo() async {
-    try {
-      final picker = ImagePicker();
+    final picker = ImagePicker();
 
-      final image = await picker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 85,
-        maxWidth: 800,
-      );
+    final image = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70,
+    );
 
-      if (image == null) return;
+    if (image == null) return;
 
-      final bytes = await image.readAsBytes();
-
-      setState(() {
-        _logoBytes = bytes;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Gagal memilih logo: $e')));
-    }
+    setState(() {
+      _logoPath = image.path;
+    });
   }
 
   Future<String?> _uploadLogoToFirebase() async {
-    if (_logoBytes == null) return _logoPath;
-
-    try {
-      final fileName =
-          'store/logo_${DateTime.now().millisecondsSinceEpoch}.jpg';
-
-      final ref = FirebaseStorage.instance.ref().child(fileName);
-
-      await ref.putData(_logoBytes!);
-
-      return await ref.getDownloadURL();
-    } catch (e) {
-      debugPrint('Upload logo error: $e');
-      return null;
-    }
+    return _logoPath;
   }
 
   Future<void> _saveSettings() async {

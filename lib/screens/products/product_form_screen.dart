@@ -1,5 +1,5 @@
+import 'dart:convert';
 import 'dart:typed_data';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:app_pos/database/firebase_database_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -58,8 +58,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
       final image = await picker.pickImage(
         source: ImageSource.gallery,
-        maxWidth: 800,
-        imageQuality: 85,
+        maxWidth: 600,
+        imageQuality: 60,
       );
 
       if (image == null) return;
@@ -79,18 +79,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   Future<String?> _uploadImageToFirebase() async {
     if (_imageBytes == null) return _imagePath;
 
-    try {
-      final fileName = 'products/${DateTime.now().millisecondsSinceEpoch}.jpg';
-
-      final ref = FirebaseStorage.instance.ref().child(fileName);
-
-      await ref.putData(_imageBytes!);
-
-      return await ref.getDownloadURL();
-    } catch (e) {
-      debugPrint('Upload image error: $e');
-      return null;
-    }
+    return base64Encode(_imageBytes!);
   }
 
   Future<void> _save() async {

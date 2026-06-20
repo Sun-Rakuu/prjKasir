@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:app_pos/database/firebase_database_helper.dart';
 import 'package:flutter/material.dart';
@@ -52,8 +53,10 @@ class _PosScreenState extends State<PosScreen> {
       _cartItems.fold(0, (sum, item) => sum + item.subtotal);
 
   void _addToCart(Product product) {
-    final existingIndex = _cartItems.indexWhere((item) => item.product.id == product.id);
-    
+    final existingIndex = _cartItems.indexWhere(
+      (item) => item.product.id == product.id,
+    );
+
     // Jika sudah ada di keranjang, hapus (toggle off)
     if (existingIndex >= 0) {
       setState(() {
@@ -83,12 +86,15 @@ class _PosScreenState extends State<PosScreen> {
       final item = _cartItems[index];
       if (newQty <= 0) {
         _cartItems.removeAt(index);
-      } else if (item.product.isUnlimitedStock || newQty <= item.product.stock) {
+      } else if (item.product.isUnlimitedStock ||
+          newQty <= item.product.stock) {
         _cartItems[index] = item.copyWith(quantity: newQty);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Stok ${item.product.name} hanya ${item.product.stock}'),
+            content: Text(
+              'Stok ${item.product.name} hanya ${item.product.stock}',
+            ),
             backgroundColor: AppTheme.warning,
           ),
         );
@@ -104,22 +110,31 @@ class _PosScreenState extends State<PosScreen> {
     if (_cartItems.isEmpty) return;
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Kosongkan Keranjang?'),
-        content: const Text('Semua item akan dihapus dari keranjang.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
-          ElevatedButton(
-            onPressed: () {
-              setState(() => _cartItems.clear());
-              Navigator.pop(ctx);
-              onCleared?.call();
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error),
-            child: const Text('Hapus Semua', style: TextStyle(color: AppTheme.white)),
+      builder:
+          (ctx) => AlertDialog(
+            title: const Text('Kosongkan Keranjang?'),
+            content: const Text('Semua item akan dihapus dari keranjang.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Batal'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() => _cartItems.clear());
+                  Navigator.pop(ctx);
+                  onCleared?.call();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.error,
+                ),
+                child: const Text(
+                  'Hapus Semua',
+                  style: TextStyle(color: AppTheme.white),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -128,22 +143,26 @@ class _PosScreenState extends State<PosScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => PaymentDialog(
-        totalAmount: _totalAmount,
-        cartItems: _cartItems
-            .map((item) => TransactionItem(
-                  productId: item.product.id!,
-                  productName: item.product.name,
-                  price: item.product.price,
-                  quantity: item.quantity,
-                  subtotal: item.subtotal,
-                ))
-            .toList(),
-        onPaymentComplete: () {
-          setState(() => _cartItems.clear());
-          _loadData(); // Refresh products (stock updated)
-        },
-      ),
+      builder:
+          (ctx) => PaymentDialog(
+            totalAmount: _totalAmount,
+            cartItems:
+                _cartItems
+                    .map(
+                      (item) => TransactionItem(
+                        productId: item.product.id!,
+                        productName: item.product.name,
+                        price: item.product.price,
+                        quantity: item.quantity,
+                        subtotal: item.subtotal,
+                      ),
+                    )
+                    .toList(),
+            onPaymentComplete: () {
+              setState(() => _cartItems.clear());
+              _loadData(); // Refresh products (stock updated)
+            },
+          ),
     );
   }
 
@@ -153,40 +172,45 @@ class _PosScreenState extends State<PosScreen> {
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Jumlah ${item.product.name}'),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          autofocus: true,
-          textAlign: TextAlign.center,
-          decoration: InputDecoration(
-            hintText: 'Masukkan jumlah',
-            suffixText: item.product.unit,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final newQty = int.tryParse(controller.text) ?? 0;
-              _updateQuantity(index, newQty);
-              onChanged?.call();
-              Navigator.pop(ctx);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryYellow,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      builder:
+          (ctx) => AlertDialog(
+            title: Text('Jumlah ${item.product.name}'),
+            content: TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+              textAlign: TextAlign.center,
+              decoration: InputDecoration(
+                hintText: 'Masukkan jumlah',
+                suffixText: item.product.unit,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             ),
-            child: const Text('Simpan'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Batal'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final newQty = int.tryParse(controller.text) ?? 0;
+                  _updateQuantity(index, newQty);
+                  onChanged?.call();
+                  Navigator.pop(ctx);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryYellow,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text('Simpan'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -206,10 +230,13 @@ class _PosScreenState extends State<PosScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.history_rounded),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const TransactionHistoryScreen()),
-            ),
+            onPressed:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const TransactionHistoryScreen(),
+                  ),
+                ),
             tooltip: 'Riwayat',
           ),
         ],
@@ -246,7 +273,10 @@ class _PosScreenState extends State<PosScreen> {
                       children: [
                         Text(
                           '${_cartItems.length} item',
-                          style: const TextStyle(fontSize: 12, color: AppTheme.textLight),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.textLight,
+                          ),
                         ),
                         Text(
                           CurrencyHelper.format(_totalAmount),
@@ -266,7 +296,10 @@ class _PosScreenState extends State<PosScreen> {
                     label: const Text('Lihat Keranjang'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryYellow,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 14,
+                      ),
                     ),
                   ),
                 ],
@@ -284,50 +317,71 @@ class _PosScreenState extends State<PosScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        maxChildSize: 0.9,
-        minChildSize: 0.4,
-        expand: false,
-        builder: (ctx, scrollController) => StatefulBuilder(
-          builder: (ctx, setSheetState) => Column(
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: AppTheme.divider,
-                  borderRadius: BorderRadius.circular(2),
+      builder:
+          (ctx) => DraggableScrollableSheet(
+            initialChildSize: 0.7,
+            maxChildSize: 0.9,
+            minChildSize: 0.4,
+            expand: false,
+            builder:
+                (ctx, scrollController) => StatefulBuilder(
+                  builder:
+                      (ctx, setSheetState) => Column(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 4,
+                            margin: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: AppTheme.divider,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Row(
+                              children: [
+                                const Text(
+                                  'Keranjang',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const Spacer(),
+                                TextButton(
+                                  onPressed:
+                                      () => _clearCart(
+                                        onCleared: () => Navigator.pop(ctx),
+                                      ),
+                                  child: const Text(
+                                    'Hapus Semua',
+                                    style: TextStyle(color: AppTheme.error),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const Divider(),
+                          Expanded(
+                            child: ListView.builder(
+                              controller: scrollController,
+                              itemCount: _cartItems.length,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              itemBuilder:
+                                  (_, i) => _buildCartItem(
+                                    i,
+                                    onChanged: () => setSheetState(() {}),
+                                  ),
+                            ),
+                          ),
+                          _buildCartFooter(),
+                        ],
+                      ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    const Text('Keranjang', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: () => _clearCart(onCleared: () => Navigator.pop(ctx)),
-                      child: const Text('Hapus Semua', style: TextStyle(color: AppTheme.error)),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(),
-              Expanded(
-                child: ListView.builder(
-                  controller: scrollController,
-                  itemCount: _cartItems.length,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemBuilder: (_, i) => _buildCartItem(i, onChanged: () => setSheetState(() {})),
-                ),
-              ),
-              _buildCartFooter(),
-            ],
           ),
-        ),
-      ),
     );
   }
 
@@ -335,10 +389,7 @@ class _PosScreenState extends State<PosScreen> {
     return Row(
       children: [
         // Left: Product catalog
-        Expanded(
-          flex: 3,
-          child: _buildProductGrid(),
-        ),
+        Expanded(flex: 3, child: _buildProductGrid()),
         // Right: Cart
         Container(
           width: 360,
@@ -360,7 +411,12 @@ class _PosScreenState extends State<PosScreen> {
 
   Widget _buildProductGrid() {
     final padding = ResponsiveHelper.getScreenPadding(context);
-    final cols = ResponsiveHelper.getCrossAxisCount(context, phoneCols: 2, tabletCols: 3, desktopCols: 4);
+    final cols = ResponsiveHelper.getCrossAxisCount(
+      context,
+      phoneCols: 2,
+      tabletCols: 3,
+      desktopCols: 4,
+    );
 
     return Column(
       children: [
@@ -375,19 +431,26 @@ class _PosScreenState extends State<PosScreen> {
                 onChanged: (_) => _loadData(),
                 decoration: InputDecoration(
                   hintText: 'Cari produk...',
-                  prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.textLight),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.close, size: 18),
-                          onPressed: () {
-                            _searchController.clear();
-                            _loadData();
-                          },
-                        )
-                      : null,
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    color: AppTheme.textLight,
+                  ),
+                  suffixIcon:
+                      _searchController.text.isNotEmpty
+                          ? IconButton(
+                            icon: const Icon(Icons.close, size: 18),
+                            onPressed: () {
+                              _searchController.clear();
+                              _loadData();
+                            },
+                          )
+                          : null,
                   filled: true,
                   fillColor: AppTheme.white,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -401,8 +464,12 @@ class _PosScreenState extends State<PosScreen> {
                   scrollDirection: Axis.horizontal,
                   children: [
                     _buildCategoryChip(null, 'Semua'),
-                    ..._categories.map((cat) =>
-                        _buildCategoryChip(cat['id'] as int, cat['name'] as String)),
+                    ..._categories.map(
+                      (cat) => _buildCategoryChip(
+                        cat['id'] as int,
+                        cat['name'] as String,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -411,31 +478,46 @@ class _PosScreenState extends State<PosScreen> {
         ),
         // Products Grid
         Expanded(
-          child: _loading
-              ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryYellow))
-              : _products.isEmpty
+          child:
+              _loading
                   ? const Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.search_off_rounded, size: 64, color: AppTheme.textLight),
-                          SizedBox(height: 8),
-                          Text('Produk tidak ditemukan',
-                              style: TextStyle(color: AppTheme.textLight)),
-                        ],
-                      ),
-                    )
-                  : GridView.builder(
-                      padding: padding,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: cols,
-                        mainAxisSpacing: 10,
-                        crossAxisSpacing: 10,
-                        childAspectRatio: MediaQuery.of(context).size.width > MediaQuery.of(context).size.height ? 0.85 : 0.75,
-                      ),
-                      itemCount: _products.length,
-                      itemBuilder: (_, i) => _buildProductCard(_products[i]),
+                    child: CircularProgressIndicator(
+                      color: AppTheme.primaryYellow,
                     ),
+                  )
+                  : _products.isEmpty
+                  ? const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.search_off_rounded,
+                          size: 64,
+                          color: AppTheme.textLight,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Produk tidak ditemukan',
+                          style: TextStyle(color: AppTheme.textLight),
+                        ),
+                      ],
+                    ),
+                  )
+                  : GridView.builder(
+                    padding: padding,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: cols,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                      childAspectRatio:
+                          MediaQuery.of(context).size.width >
+                                  MediaQuery.of(context).size.height
+                              ? 0.85
+                              : 0.75,
+                    ),
+                    itemCount: _products.length,
+                    itemBuilder: (_, i) => _buildProductCard(_products[i]),
+                  ),
         ),
       ],
     );
@@ -446,7 +528,13 @@ class _PosScreenState extends State<PosScreen> {
     return Padding(
       padding: const EdgeInsets.only(right: 6),
       child: FilterChip(
-        label: Text(name, style: TextStyle(fontSize: 12, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400)),
+        label: Text(
+          name,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+          ),
+        ),
         selected: isSelected,
         onSelected: (_) {
           setState(() => _selectedCategoryId = id);
@@ -472,9 +560,10 @@ class _PosScreenState extends State<PosScreen> {
           color: AppTheme.white,
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           boxShadow: AppTheme.cardShadow,
-          border: inCart
-              ? Border.all(color: AppTheme.primaryYellow, width: 2)
-              : null,
+          border:
+              inCart
+                  ? Border.all(color: AppTheme.primaryYellow, width: 2)
+                  : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -504,23 +593,27 @@ class _PosScreenState extends State<PosScreen> {
                     top: 6,
                     right: 6,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
-                        color: product.isUnlimitedStock
-                            ? AppTheme.info
-                            : product.isOutOfStock
+                        color:
+                            product.isUnlimitedStock
+                                ? AppTheme.info
+                                : product.isOutOfStock
                                 ? AppTheme.error
                                 : product.isLowStock
-                                    ? AppTheme.warning
-                                    : AppTheme.success,
+                                ? AppTheme.warning
+                                : AppTheme.success,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         product.isUnlimitedStock
                             ? '∞'
                             : product.isOutOfStock
-                                ? 'Habis'
-                                : '${product.stock}',
+                            ? 'Habis'
+                            : '${product.stock}',
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
@@ -543,14 +636,20 @@ class _PosScreenState extends State<PosScreen> {
                   children: [
                     Text(
                       product.name,
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 1),
                     Text(
                       product.categoryName ?? '',
-                      style: const TextStyle(fontSize: 9, color: AppTheme.textLight),
+                      style: const TextStyle(
+                        fontSize: 9,
+                        color: AppTheme.textLight,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -586,8 +685,8 @@ class _PosScreenState extends State<PosScreen> {
           errorBuilder: (_, __, ___) => _buildFallbackIcon(product),
         );
       } else {
-        return Image.file(
-          File(product.imagePath!),
+        return Image.memory(
+          base64Decode(product.imagePath!),
           fit: BoxFit.cover,
           width: double.infinity,
           height: double.infinity,
@@ -620,39 +719,62 @@ class _PosScreenState extends State<PosScreen> {
           ),
           child: Row(
             children: [
-              const Icon(Icons.shopping_cart_rounded, color: AppTheme.primaryYellowDark, size: 20),
+              const Icon(
+                Icons.shopping_cart_rounded,
+                color: AppTheme.primaryYellowDark,
+                size: 20,
+              ),
               const SizedBox(width: 8),
-              const Text('Keranjang', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              const Text(
+                'Keranjang',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
               const Spacer(),
               if (_cartItems.isNotEmpty)
                 TextButton(
                   onPressed: _clearCart,
-                  child: const Text('Hapus', style: TextStyle(color: AppTheme.error, fontSize: 12)),
+                  child: const Text(
+                    'Hapus',
+                    style: TextStyle(color: AppTheme.error, fontSize: 12),
+                  ),
                 ),
             ],
           ),
         ),
         // Items
         Expanded(
-          child: _cartItems.isEmpty
-              ? const Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.add_shopping_cart_rounded, size: 48, color: AppTheme.textLight),
-                      SizedBox(height: 8),
-                      Text('Keranjang kosong', style: TextStyle(color: AppTheme.textLight)),
-                      SizedBox(height: 4),
-                      Text('Tap produk untuk menambahkan',
-                          style: TextStyle(fontSize: 12, color: AppTheme.textLight)),
-                    ],
+          child:
+              _cartItems.isEmpty
+                  ? const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.add_shopping_cart_rounded,
+                          size: 48,
+                          color: AppTheme.textLight,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Keranjang kosong',
+                          style: TextStyle(color: AppTheme.textLight),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Tap produk untuk menambahkan',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.textLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                  : ListView.builder(
+                    itemCount: _cartItems.length,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    itemBuilder: (_, i) => _buildCartItem(i),
                   ),
-                )
-              : ListView.builder(
-                  itemCount: _cartItems.length,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  itemBuilder: (_, i) => _buildCartItem(i),
-                ),
         ),
         // Footer
         if (_cartItems.isNotEmpty) _buildCartFooter(),
@@ -678,14 +800,20 @@ class _PosScreenState extends State<PosScreen> {
               children: [
                 Text(
                   item.product.name,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
                   CurrencyHelper.format(item.product.price),
-                  style: const TextStyle(fontSize: 11, color: AppTheme.textLight),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppTheme.textLight,
+                  ),
                 ),
               ],
             ),
@@ -718,7 +846,10 @@ class _PosScreenState extends State<PosScreen> {
                     alignment: Alignment.center,
                     child: Text(
                       '${item.quantity}',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
@@ -782,7 +913,10 @@ class _PosScreenState extends State<PosScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Total', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                const Text(
+                  'Total',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
                 Text(
                   CurrencyHelper.format(_totalAmount),
                   style: const TextStyle(
